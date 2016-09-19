@@ -1,0 +1,23 @@
+apply plugin: 'groovy'
+apply plugin: "maven-publish"
+
+group = 'com.mobilehealthworksllc'
+version='1.0-SNAPSHOT'
+
+repositories {
+    jcenter()
+}
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+    compile group: 'org.codehaus.groovy.modules.http-builder', name: 'http-builder', version: '0.7.1'
+}
+
+publishing {
+    publications {
+        publishPlugin(MavenPublication) {
+            from components.java
+        }
+    }
+}
