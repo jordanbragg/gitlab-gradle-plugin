@@ -13,7 +13,7 @@ class ListOwnersTask extends DefaultTask {
 
     @TaskAction
     def listOwners(){
-        def files = GitUtils.getAffectedFiles()
+        def files = GitUtils.getAffectedFiles(getLogger())
         def String combinedFileString = files.split('\n').join(',')
         def Set<String> owners = new HashSet<>()
         project.gitlab.observers.each { observer ->

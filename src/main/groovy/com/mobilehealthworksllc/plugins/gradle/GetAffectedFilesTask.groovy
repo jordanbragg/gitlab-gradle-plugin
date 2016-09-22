@@ -13,6 +13,6 @@ class GetAffectedFilesTask extends DefaultTask {
 
     @TaskAction
     def getAffectedFiles(){
-        println GitUtils.getAffectedFiles()
+        println GitUtils.getAffectedFiles(getLogger())
     }
 }
