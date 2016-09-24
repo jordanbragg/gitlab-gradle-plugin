@@ -1,7 +1,7 @@
 package com.mobilehealthworksllc.plugins.gradle
 
-import com.mobilehealthworksllc.plugins.gradle.internal.Gitlab
-import com.mobilehealthworksllc.plugins.gradle.internal.Observer
+import com.mobilehealthworksllc.plugins.gradle.internal.model.Gitlab
+import com.mobilehealthworksllc.plugins.gradle.internal.model.Observer
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 

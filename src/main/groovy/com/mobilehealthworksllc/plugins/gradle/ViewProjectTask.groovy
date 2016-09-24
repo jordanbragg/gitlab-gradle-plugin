@@ -1,11 +1,10 @@
 package com.mobilehealthworksllc.plugins.gradle
 
+import com.mobilehealthworksllc.plugins.gradle.internal.gitlab.Projects
 import groovy.json.JsonOutput
-import groovyx.net.http.ContentType
-import groovyx.net.http.HTTPBuilder
-import groovyx.net.http.Method
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.TaskExecutionException
 
 /**
  * Created by jbragg on 9/15/16.
@@ -18,20 +17,13 @@ class ViewProjectTask extends DefaultTask{
 
     @TaskAction
     def viewProject(){
-        def http = new HTTPBuilder(GitlabApi.getProjectUrl(project))
-        http.ignoreSSLIssues()
-        http.request(Method.GET) {
-            uri.query =  [ private_token: "${System.getenv('gitlab_token')}" ]
-            contentType = ContentType.JSON
-
-            response.success = { resp ->
-                def responseStr = "${resp.entity.content}"
-                println JsonOutput.prettyPrint(responseStr)
-            }
-
-            response.failure = { resp ->
-                println "Request failed with status ${resp.status}"
-            }
-        }
+        Projects.viewCurrentProject(project,
+                {resp ->
+                    def responseStr = "${resp.entity.content}"
+                    getLogger().lifecycle(JsonOutput.prettyPrint(responseStr))
+                },
+                {failure ->
+                    throw new TaskExecutionException("Request failed with status ${failure.status}")
+                })
     }
 }

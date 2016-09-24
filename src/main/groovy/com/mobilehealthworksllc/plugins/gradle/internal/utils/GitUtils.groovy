@@ -1,4 +1,4 @@
-package com.mobilehealthworksllc.plugins.gradle
+package com.mobilehealthworksllc.plugins.gradle.internal.utils
 
 import org.gradle.api.logging.Logger;
 
@@ -58,5 +58,9 @@ public class GitUtils {
       def branchName = getBranchName()
       def command = "git push origin ${branchName}"
       command.execute().waitFor()
+   }
+
+   public static boolean isMasterBranch(String branchName) {
+      return branchName != null && !branchName.isEmpty() && "master".equals(branchName)
    }
 }

@@ -1,9 +1,10 @@
 package com.mobilehealthworksllc.plugins.gradle
 
+import com.mobilehealthworksllc.plugins.gradle.internal.gitlab.MergeRequests
+import com.mobilehealthworksllc.plugins.gradle.internal.gitlab.Notes
+import com.mobilehealthworksllc.plugins.gradle.internal.utils.DialogUtils
+import com.mobilehealthworksllc.plugins.gradle.internal.utils.GitUtils
 import groovy.json.JsonSlurper
-import groovy.swing.SwingBuilder
-import groovyx.net.http.ContentType
-import groovyx.net.http.HTTPBuilder
 import org.gradle.api.DefaultTask
 import org.gradle.api.Project
 import org.gradle.api.tasks.TaskAction
@@ -19,28 +20,32 @@ class CreateMergeRequestTask extends DefaultTask {
         dependsOn.add('listAffectedOwners')
     }
 
+    /**
+     * This task does the following:
+     * 1. Validates and prompts to ensure remote branch is in place and all changes are pushed
+     * 2. Create a merge request for current branch
+     * 3. Adds comment to review to notify affected owners/observers
+     * @return
+     */
     @TaskAction
     def createMergeRequest() {
         def branchName = GitUtils.getBranchName()
         validateBranch(branchName)
         getLogger().lifecycle("Creating Merge Request For ${branchName}")
-        def http = new HTTPBuilder(GitlabApi.getMergeRequestsUrl(project))
-        http.ignoreSSLIssues()
-        http.post(body: [source_branch: branchName, target_branch: 'master', title: "${branchName}"],
-                requestContentType: ContentType.URLENC,
-                query: [private_token: "${System.getenv('gitlab_token')}"]) { resp ->
-            if (resp.status == 201) {
-                def response = new JsonSlurper().parseText("${resp.entity.content}")
-                println "Review created: ${project.gitlab.baseUri}/${project.gitlab.projectName}/${project.gitlab.projectName}/merge_requests/${response.iid}"
-                addCommentToMergeRequest(project, "${response.id}")
-            } else {
-                println "Failed to create merge request with status ${resp.status}"
-            }
-        }
+        MergeRequests.create(project,
+                { resp ->
+                    if (resp.status == 201) {
+                        def response = new JsonSlurper().parseText("${resp.entity.content}")
+                        getLogger().lifecycle("Review created: ${project.gitlab.baseUri}/${project.gitlab.projectName}/${project.gitlab.projectName}/merge_requests/${response.iid}")
+                        addCommentToMergeRequest(project, "${response.id}")
+                    } else {
+                        throw new TaskExecutionException("Failed to create merge request with status ${resp.status}")
+                    }
+                })
     }
 
     def validateBranch(String branchName) {
-        if (isMasterBranch(branchName)) {
+        if (GitUtils.isMasterBranch(branchName)) {
             throw new TaskExecutionException("You are currently on master branch, please switch to the branch you wish to create a request for.")
         }
         ensureRemoteUpToDate(branchName)
@@ -51,7 +56,7 @@ class CreateMergeRequestTask extends DefaultTask {
         if (!GitUtils.isAllChangesPushed()) {
             while (pushChanges == null) {
                 getLogger().error("You must provide a value for whether to push the branch or not")
-                pushChanges = promptUserForPushingChanges()
+                pushChanges = DialogUtils.promptUserForPushingChanges()
             }
 
             if ("y".equals(pushChanges.toLowerCase())) {
@@ -67,36 +72,16 @@ class CreateMergeRequestTask extends DefaultTask {
         }
     }
 
-    def String promptUserForPushingChanges() {
-        def pushChanges
-        new SwingBuilder().edt {
-            dialog(modal: true, title: 'Problems with creating merge request', alwaysOnTop: true, resizable: false, locationRelativeTo: null, pack: true, show: true) {
-                vbox {
-                    label(text: "Changes aren't all push to remote, push now? (y/n): ")
-                    def input1 = textField(columns: 1, id: 'name')
-                    button(defaultButton: true, text: 'OK', actionPerformed: {
-                        pushChanges = input1.text;
-                        dispose();
-                    })
-                }
-            }
-        }
-        return pushChanges
-    }
-
     def addCommentToMergeRequest(Project project, String mergeRequestId) {
-        def hhtp = new HTTPBuilder(GitlabApi.getMergeRequestCommentUrl(project, mergeRequestId))
-        hhtp.ignoreSSLIssues()
         def ownerBody = generateOwnerString(project)
-        hhtp.post(body: [body: ownerBody],
-                requestContentType: ContentType.URLENC,
-                query: [private_token: "${System.getenv('gitlab_token')}"]) { cResp ->
-            if (cResp.status == 201) {
-                println "Added mentions of owners"
-            } else {
-                println "Failed with status: ${cResp.status}"
-            }
-        }
+        Notes.addNote(project, mergeRequestId, ownerBody,
+                { resp ->
+                    if (resp.status == 201) {
+                        getLogger().lifecycle("Added mentions of owners")
+                    } else {
+                        throw new TaskExecutionException("Failed with status: ${resp.status}")
+                    }
+                })
     }
 
     def String generateOwnerString(Project project) {
@@ -105,9 +90,5 @@ class CreateMergeRequestTask extends DefaultTask {
             ownerString += "@${owner} "
         }
         return ownerString
-    }
-
-    def boolean isMasterBranch(String branchName) {
-        return branchName != null && !branchName.isEmpty() && "master".equals(branchName)
     }
 }

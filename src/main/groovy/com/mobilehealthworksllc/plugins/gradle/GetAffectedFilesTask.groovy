@@ -1,5 +1,6 @@
 package com.mobilehealthworksllc.plugins.gradle
 
+import com.mobilehealthworksllc.plugins.gradle.internal.utils.GitUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -13,6 +14,6 @@ class GetAffectedFilesTask extends DefaultTask {
 
     @TaskAction
     def getAffectedFiles(){
-        println GitUtils.getAffectedFiles(getLogger())
+        getLogger().lifecycle(GitUtils.getAffectedFiles(getLogger()))
     }
 }

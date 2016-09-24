@@ -1,4 +1,4 @@
-package com.mobilehealthworksllc.plugins.gradle.internal
+package com.mobilehealthworksllc.plugins.gradle.internal.model
 
 class Gitlab {
 

@@ -1,4 +1,4 @@
-package com.mobilehealthworksllc.plugins.gradle
+package com.mobilehealthworksllc.plugins.gradle.internal.utils
 
 import org.gradle.api.Project
 

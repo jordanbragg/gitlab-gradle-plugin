@@ -1,5 +1,6 @@
 package com.mobilehealthworksllc.plugins.gradle
 
+import com.mobilehealthworksllc.plugins.gradle.internal.utils.GitUtils
 import org.gradle.api.DefaultTask
 import org.gradle.api.tasks.TaskAction
 
@@ -16,6 +17,12 @@ class ListOwnersTask extends DefaultTask {
         def files = GitUtils.getAffectedFiles(getLogger())
         def String combinedFileString = files.split('\n').join(',')
         def Set<String> owners = new HashSet<>()
+
+        if(project.gitlab.observers == null){
+            getLogger().lifecycle("There are no observers defined.")
+            return;
+        }
+
         project.gitlab.observers.each { observer ->
             def pattern = ~(".*"+observer.filePattern+".*")
             def matcher = combinedFileString =~ pattern
@@ -23,8 +30,8 @@ class ListOwnersTask extends DefaultTask {
                 owners.addAll(observer.owners)
             }
         }
-        println "Owners of merge"
-        println owners
+        getLogger().lifecycle("Owners of merge")
+        getLogger().lifecycle("" + owners)
         project.ext.owners = owners
     }
 }
