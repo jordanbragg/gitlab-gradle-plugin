@@ -16,6 +16,8 @@ class GitlabPlugin implements Plugin<Project> {
         }
         project.task("listProjects", type: ListProjectsTask)
 
+        project.task("getProjectId", type: GetProjectIdTask)
+
         project.task('viewProject', type: ViewProjectTask)
 
         project.task('viewMergeRequests', type: ViewMergeRequestsTask)

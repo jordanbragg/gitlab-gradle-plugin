@@ -23,7 +23,7 @@ public class ListProjectsTask extends DefaultTask {
                     getLogger().lifecycle(JsonOutput.prettyPrint(responseStr))
                 },
                 { failure ->
-                    throw new TaskExecutionException("Request failed with status: ${failure.status}")
+                    throw new TaskExecutionException(this,new Exception("Request failed with status: ${failure.status}"))
                 })
     }
 }

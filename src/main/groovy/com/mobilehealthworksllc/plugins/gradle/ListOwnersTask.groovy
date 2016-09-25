@@ -30,8 +30,7 @@ class ListOwnersTask extends DefaultTask {
                 owners.addAll(observer.owners)
             }
         }
-        getLogger().lifecycle("Owners of merge")
-        getLogger().lifecycle("" + owners)
+        getLogger().lifecycle("Owners of merge ${owners}")
         project.ext.owners = owners
     }
 }

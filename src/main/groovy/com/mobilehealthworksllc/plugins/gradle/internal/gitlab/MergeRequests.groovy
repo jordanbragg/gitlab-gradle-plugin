@@ -12,7 +12,6 @@ class MergeRequests {
     def static void viewMergeRequests(Project project, Closure onSuccess, Closure onFailure){
         def token = GitlabApi.getPrivateToken()
         def http = new HTTPBuilder(GitlabApi.getMergeRequestsUrl(project))
-        println GitlabApi.getMergeRequestsUrl(project)
         http.ignoreSSLIssues()
         http.request(Method.GET) {
             uri.query =  [ private_token: token, state: 'opened' ]

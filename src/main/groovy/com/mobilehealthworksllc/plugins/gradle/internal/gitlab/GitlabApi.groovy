@@ -27,11 +27,11 @@ class GitlabApi {
     }
 
     public static String getPrivateToken(){
-        def token = "${System.getenv('gitlab_token')}"
-        if(token.isEmpty()){
+        def token = System.getenv('gitlab_token')
+        if(token == null){
             token = DialogUtils.promptUserForPrivateToken()
             if(token == null || token.isEmpty())
-                throw new TaskExecutionException("A private token must be provided in order to perform requests. Set via gitlab_token")
+                throw new TaskExecutionException("A private token must be provided in order to perform requests. Set via gitlab_token environment variable or provide in the prompt.")
         }
         return token
     }

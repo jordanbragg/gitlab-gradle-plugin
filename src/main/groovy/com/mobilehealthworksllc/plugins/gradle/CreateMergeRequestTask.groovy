@@ -32,21 +32,23 @@ class CreateMergeRequestTask extends DefaultTask {
         def branchName = GitUtils.getBranchName()
         validateBranch(branchName)
         getLogger().lifecycle("Creating Merge Request For ${branchName}")
-        MergeRequests.create(project,
+        MergeRequests.create(project, branchName,
                 { resp ->
                     if (resp.status == 201) {
                         def response = new JsonSlurper().parseText("${resp.entity.content}")
-                        getLogger().lifecycle("Review created: ${project.gitlab.baseUri}/${project.gitlab.projectName}/${project.gitlab.projectName}/merge_requests/${response.iid}")
+                        project.ext.reviewUrl = "${project.gitlab.baseUri}/${project.gitlab.projectName}/${project.gitlab.projectName}/merge_requests/${response.iid}"
+                        getLogger().lifecycle("Review created: ${project.ext.reviewUrl}")
                         addCommentToMergeRequest(project, "${response.id}")
+                        "open ${project.ext.reviewUrl}".execute().waitFor()
                     } else {
-                        throw new TaskExecutionException("Failed to create merge request with status ${resp.status}")
+                        throw new TaskExecutionException(this, new Exception("Failed to create merge request with status ${resp.status}"))
                     }
                 })
     }
 
     def validateBranch(String branchName) {
         if (GitUtils.isMasterBranch(branchName)) {
-            throw new TaskExecutionException("You are currently on master branch, please switch to the branch you wish to create a request for.")
+            throw new TaskExecutionException(this, new Exception("You are currently on master branch, please switch to the branch you wish to create a request for."))
         }
         ensureRemoteUpToDate(branchName)
     }
@@ -66,7 +68,7 @@ class CreateMergeRequestTask extends DefaultTask {
             } else {
                 getLogger().lifecycle("Local changes not pushed to origin")
                 if (!GitUtils.isBranchInRemote()) {
-                    throw new TaskExecutionException("Cannot create merge because the branch is not in origin. Please re-run and accept pushing when prompted.")
+                    throw new TaskExecutionException(this, new Exception("Cannot create merge because the branch is not in origin. Please re-run and accept pushing when prompted."))
                 }
             }
         }
@@ -79,7 +81,7 @@ class CreateMergeRequestTask extends DefaultTask {
                     if (resp.status == 201) {
                         getLogger().lifecycle("Added mentions of owners")
                     } else {
-                        throw new TaskExecutionException("Failed with status: ${resp.status}")
+                        throw new TaskExecutionException(this, new Exception("Failed with status: ${resp.status}"))
                     }
                 })
     }
