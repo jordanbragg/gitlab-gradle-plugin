@@ -46,7 +46,7 @@ gitlab {
 }
 ```
 
-You can get your project id by running "gradle getProjectId". This requires you to provide the projectName and the baseUri.
+You can get your project id by running ```gradle getProjectId```. This requires you to provide the projectName and the baseUri.
 
 ```
 gitlab {
