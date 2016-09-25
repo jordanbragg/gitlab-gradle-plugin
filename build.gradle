@@ -1,8 +1,32 @@
 apply plugin: 'groovy'
 apply plugin: "maven-publish"
 
-group = 'com.mobilehealthworksllc'
-version='1.0-SNAPSHOT'
+buildscript {
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7'
+    }
+}
+
+apply plugin: 'com.jfrog.bintray'
+
+bintray {
+    user = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.getenv('BINTRAY_USER')
+    key = project.hasProperty('bintrayApiKey') ? project.property('bintrayApiKey') : System.getenv('BINTRAY_API_KEY')
+    publications = ['MyPublication']
+    pkg {
+        repo = 'gitlab-gradle-plugin'
+        name = 'gitlab-gradle-plugin'
+        userOrg = user
+        licenses = ['MIT']
+        vcsUrl = 'https://github.com/jordanbragg/gitlab-gradle-plugin.git'
+        version {
+            name = '1.0'
+        }
+    }
+}
 
 repositories {
     jcenter()
@@ -13,11 +37,13 @@ dependencies {
     compile localGroovy()
     compile group: 'org.codehaus.groovy.modules.http-builder', name: 'http-builder', version: '0.7.1'
 }
-
 publishing {
     publications {
-        publishPlugin(MavenPublication) {
+        MyPublication(MavenPublication) {
             from components.java
+            groupId 'com.mobilehealthworksllc'
+            artifactId 'gitlab-gradle-plugin'
+            version '1.0'
         }
     }
 }
