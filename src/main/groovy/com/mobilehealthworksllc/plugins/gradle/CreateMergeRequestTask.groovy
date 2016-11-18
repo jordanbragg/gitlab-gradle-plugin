@@ -2,6 +2,7 @@ package com.mobilehealthworksllc.plugins.gradle
 
 import com.mobilehealthworksllc.plugins.gradle.internal.gitlab.MergeRequests
 import com.mobilehealthworksllc.plugins.gradle.internal.gitlab.Notes
+import com.mobilehealthworksllc.plugins.gradle.internal.utils.CommonUtils
 import com.mobilehealthworksllc.plugins.gradle.internal.utils.DialogUtils
 import com.mobilehealthworksllc.plugins.gradle.internal.utils.GitUtils
 import groovy.json.JsonSlurper
@@ -75,7 +76,7 @@ class CreateMergeRequestTask extends DefaultTask {
     }
 
     def addCommentToMergeRequest(Project project, String mergeRequestId) {
-        def ownerBody = generateOwnerString(project)
+        def ownerBody = CommonUtils.generateOwnerString(project)
         Notes.addNote(project, mergeRequestId, ownerBody,
                 { resp ->
                     if (resp.status == 201) {
