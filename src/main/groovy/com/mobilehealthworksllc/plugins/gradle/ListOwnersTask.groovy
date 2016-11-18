@@ -14,7 +14,7 @@ class ListOwnersTask extends DefaultTask {
 
     @TaskAction
     def listOwners(){
-        def files = GitUtils.getAffectedFiles(getLogger())
+        def files = GitUtils.getAffectedFiles(project, getLogger())
         def String combinedFileString = files.split('\n').join(',')
         def Set<String> owners = new HashSet<>()
 

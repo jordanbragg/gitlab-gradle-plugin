@@ -86,11 +86,5 @@ class CreateMergeRequestTask extends DefaultTask {
                 })
     }
 
-    def String generateOwnerString(Project project) {
-        def ownerString = "Owners affected: "
-        project.owners.each { owner ->
-            ownerString += "@${owner} "
-        }
-        return ownerString
-    }
+
 }

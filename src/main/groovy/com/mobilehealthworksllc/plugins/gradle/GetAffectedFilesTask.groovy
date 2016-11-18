@@ -14,6 +14,6 @@ class GetAffectedFilesTask extends DefaultTask {
 
     @TaskAction
     def getAffectedFiles(){
-        GitUtils.getAffectedFiles(getLogger())
+        GitUtils.getAffectedFiles(project, getLogger())
     }
 }

@@ -1,5 +1,6 @@
 package com.mobilehealthworksllc.plugins.gradle.internal.utils
 
+import com.mobilehealthworksllc.plugins.gradle.internal.gitlab.MergeRequests
 import org.gradle.api.logging.Logger;
 
 /**
@@ -13,22 +14,25 @@ public class GitUtils {
       return getBranchProc.text.trim()
    }
 
-   public static String getAffectedFiles(Logger logger){
+   public static String getAffectedFiles(project, Logger logger){
       def branchName = GitUtils.getBranchName()
       def command
       def isRemote = false
+      def remoteBranch = "master"
 
       if(isBranchInRemote()){
-         command = "git diff --name-only origin/master...origin/"+branchName
+         def mergeRequest = MergeRequests.getCurrentMergeRequest(project)
+         remoteBranch = mergeRequest != null && mergeRequest.target_branch != null ? mergeRequest.target_branch : "master"
+         command = "git diff --name-only origin/${remoteBranch}...origin/"+branchName
          isRemote = true
       }else{
          logger.lifecycle("BRANCH IS NOT PUSHED, CHECKING AGAINST LOCAL")
-         command = "git diff --name-only origin/master...${branchName}"
+         command = "git diff --name-only origin/${remoteBranch}...${branchName}"
       }
       def affectedFilesProc = command.execute()
       affectedFilesProc.waitFor()
       def files = affectedFilesProc.text
-      logger.lifecycle("FILES CHANGED IN ${isRemote ? "REMOTE" : "LOCAL"} BRANCH: ${branchName}")
+      logger.lifecycle("FILES CHANGED IN ${isRemote ? "REMOTE" : "LOCAL"} BRANCH: ${branchName} AGAINST TARGET: ${remoteBranch}")
       logger.lifecycle("${files}")
       return files
    }

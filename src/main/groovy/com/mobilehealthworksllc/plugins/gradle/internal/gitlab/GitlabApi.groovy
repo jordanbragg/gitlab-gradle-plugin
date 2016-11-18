@@ -23,7 +23,7 @@ class GitlabApi {
     }
 
     public static String getMergeRequestCommentUrl(Project project, String mergeRequestId){
-        GitlabApi.getMergeRequestsUrl(project) + "/${mergeRequestId}/notes"
+        return "${GitlabApi.getMergeRequestsUrl(project)}/${mergeRequestId}/notes"
     }
 
     public static String getPrivateToken(){

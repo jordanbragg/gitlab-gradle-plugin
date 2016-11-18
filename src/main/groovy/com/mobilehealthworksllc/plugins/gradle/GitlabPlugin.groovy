@@ -27,5 +27,7 @@ class GitlabPlugin implements Plugin<Project> {
         project.task('listAffectedOwners', type: ListOwnersTask)
 
         project.task('createMergeRequest', type: CreateMergeRequestTask)
+
+        project.task('addAffectedOwners', type: AddAffectedOwners)
     }
 }
