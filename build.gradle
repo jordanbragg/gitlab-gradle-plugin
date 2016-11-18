@@ -23,7 +23,7 @@ bintray {
         licenses = ['MIT']
         vcsUrl = 'https://github.com/jordanbragg/gitlab-gradle-plugin.git'
         version {
-            name = '1.0'
+            name = '1.1'
         }
     }
 }
