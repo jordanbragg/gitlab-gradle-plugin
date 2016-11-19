@@ -13,7 +13,7 @@ import org.gradle.api.tasks.TaskExecutionException
 class AddAffectedOwners extends DefaultTask {
     AddAffectedOwners() {
         setGroup("Gitlab")
-        dependsOn.add('listAffectedOwners')
+        dependsOn.add('listObservers')
     }
 
     @TaskAction
@@ -23,10 +23,10 @@ class AddAffectedOwners extends DefaultTask {
         if (mergeRequest != null) {
             Notes.addNote(project,
                     "" + mergeRequest.id,
-                    CommonUtils.generateOwnerString(project),
+                    CommonUtils.generateOwnerString(project) + "\n\n" + CommonUtils.generateWatchersString(project),
                     { noteResponse ->
                         if (noteResponse.status == 201) {
-                            getLogger().lifecycle("Successfully added owners to review ${it.iid}")
+                            getLogger().lifecycle("Successfully added owners to review ${mergeRequest.iid}")
                         } else {
                             throw new TaskExecutionException(this, new Exception("Failed to create merge request with status ${noteResponse.status}"))
                         }

@@ -39,17 +39,14 @@ class MergeRequests {
     }
 
     def static Object getCurrentMergeRequest(project){
+        def mergeRequest
         MergeRequests.viewMergeRequests(project, {resp ->
             def response = new JsonSlurper().parseText("${resp.entity.content}")
             def branchName = GitUtils.getBranchName()
-            response.each {
-                if(branchName == it.source_branch){
-                    return it
-                }
-            }
-            return null
+            mergeRequest = response.find { it -> branchName == it.source_branch }
         },{failure ->
             throw new TaskExecutionException(this,new Exception("Request failed with status ${failure.status}"))
         });
+        return mergeRequest
     }
 }

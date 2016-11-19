@@ -22,12 +22,12 @@ class GitlabPlugin implements Plugin<Project> {
 
         project.task('viewMergeRequests', type: ViewMergeRequestsTask)
 
-        project.task('showAffectedFiles', type: GetAffectedFilesTask)
-
-        project.task('listAffectedOwners', type: ListOwnersTask)
-
         project.task('createMergeRequest', type: CreateMergeRequestTask)
 
-        project.task('addAffectedOwners', type: AddAffectedOwners)
+        project.task('showAffectedFiles', type: GetAffectedFilesTask)
+
+        project.task('listObservers', type: ListOwnersTask)
+
+        project.task('addObservers', type: AddAffectedOwners)
     }
 }

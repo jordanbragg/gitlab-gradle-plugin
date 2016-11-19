@@ -13,4 +13,12 @@ class CommonUtils {
         }
         return ownerString
     }
+
+    def static String generateWatchersString(Project project) {
+        def watcherString = "Watchers notified of changes: "
+        project.watchers.each { watcher ->
+            watcherString += "@${watcher} "
+        }
+        return watcherString
+    }
 }

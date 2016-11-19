@@ -18,7 +18,7 @@ class CreateMergeRequestTask extends DefaultTask {
 
     CreateMergeRequestTask() {
         setGroup("Gitlab")
-        dependsOn.add('listAffectedOwners')
+        dependsOn.add('listObservers')
     }
 
     /**
