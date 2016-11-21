@@ -76,13 +76,14 @@ class CreateMergeRequestTask extends DefaultTask {
     }
 
     def addCommentToMergeRequest(Project project, String mergeRequestId) {
-        def ownerBody = CommonUtils.generateOwnerString(project)
-        Notes.addNote(project, mergeRequestId, ownerBody,
-                { resp ->
-                    if (resp.status == 201) {
-                        getLogger().lifecycle("Added mentions of owners")
+        Notes.addNote(project,
+                "" + mergeRequestId,
+                CommonUtils.generateOwnerString(project) + "\n\n" + CommonUtils.generateWatchersString(project),
+                { noteResponse ->
+                    if (noteResponse.status == 201) {
+                        getLogger().lifecycle("Successfully added owners and watchers to review")
                     } else {
-                        throw new TaskExecutionException(this, new Exception("Failed with status: ${resp.status}"))
+                        throw new TaskExecutionException(this, new Exception("Failed to create merge request with status ${noteResponse.status}"))
                     }
                 })
     }
